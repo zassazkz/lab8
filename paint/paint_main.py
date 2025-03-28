@@ -14,20 +14,29 @@ background_color = 'white'
 screen.fill(background_color)
 pygame.display.flip()
 
+# Загрузка изображения ластика
+eraser_image = pygame.image.load(r'C:\Users\zassa\Documents\GitHub\lab8\paint\eraser.webp')
+eraser_image = pygame.transform.scale(eraser_image, (50, 50))
+eraser_rect = eraser_image.get_rect(topleft=(130, 0))
+
 # Функция для рисования кнопок выбора цвета
 def draw_rect(index):
     pygame.draw.rect(screen, colors[index], (index * 40, 0, 40, 40))
 
 # Функция выбора цвета
 def pick_color():
+    global mode  # Добавляем глобальную переменную, чтобы менять режим
     click = pygame.mouse.get_pressed()
     x, y = pygame.mouse.get_pos()
     if click[0]:
         if 0 <= x <= 40 and 0 <= y <= 40:
+            mode = 'circle'  # Выход из режима ластика
             return 'red'
         elif 40 < x <= 80 and 0 <= y <= 40:
+            mode = 'circle'
             return 'green'
         elif 80 < x <= 120 and 0 <= y <= 40:
+            mode = 'circle'
             return 'blue'
     return color
 
@@ -61,15 +70,18 @@ while True:
         elif event.type == pygame.KEYDOWN:
             if event.key == pygame.K_e:
                 mode = 'eraser'
-        elif event.type == pygame.MOUSEBUTTONDOWN and mode == 'eraser':
-            erasing = True
+        elif event.type == pygame.MOUSEBUTTONDOWN and eraser_rect.collidepoint(pygame.mouse.get_pos()):
+            mode = 'eraser'
         elif event.type == pygame.MOUSEBUTTONUP and mode == 'eraser':
             erasing = False
     
     for i in range(len(colors)):
         draw_rect(i)
 
-    color = pick_color()
+    # Отображение ластика
+    screen.blit(eraser_image, eraser_rect.topleft)
+    
+    color = pick_color()  # Обновляем цвет, выходя из режима ластика при выборе цвета
     if erasing:
         painting(background_color, 'eraser')
     else:
